@@ -1,0 +1,84 @@
+version: 1.5.1rc0
+
+components:
+- name: ElasticsearchDocumentStore
+  params:
+    embedding_dim: 384
+    index: bm_documents
+    similarity: cosine
+  type: ElasticsearchDocumentStore
+- name: BMRetriever
+  params:
+    document_store: ElasticsearchDocumentStore
+  type: BM25Retriever
+- name: ElasticsearchDocumentStore_2
+  params:
+    embedding_dim: 384
+    similarity: cosine
+  type: ElasticsearchDocumentStore
+- name: BMRetriever_phrase
+  params:
+    document_store: ElasticsearchDocumentStore_2
+  type: BM25Retriever
+- name: ESRetriever
+  params:
+    document_store: ElasticsearchDocumentStore_2
+    embedding_model: sentence-transformers/paraphrase-MiniLM-L3-v2
+  type: EmbeddingRetriever
+- name: ElasticsearchDocumentStore_3
+  params:
+    embedding_dim: 128
+    index: rtr_documents
+  type: ElasticsearchDocumentStore
+- name: RTRetriever
+  params:
+    document_store: ElasticsearchDocumentStore_3
+    embedding_model: yjernite/retribert-base-uncased
+    model_format: retribert
+  type: EmbeddingRetriever
+- name: JoinResults_content
+  params:
+    join_mode: merge
+    weights:
+    - 0.5
+    - 0.5
+  type: JoinDocuments
+- name: JoinResults_phrase
+  params:
+    join_mode: merge
+    weights:
+    - 0.5
+    - 0.5
+  type: JoinDocuments
+- name: JoinResults
+  params:
+    join_mode: merge
+  type: JoinDocuments
+pipelines:
+- name: query
+  nodes:
+  - inputs:
+    - Query
+    name: BMRetriever
+  - inputs:
+    - Query
+    name: BMRetriever_phrase
+  - inputs:
+    - Query
+    name: ESRetriever
+  - inputs:
+    - Query
+    name: RTRetriever
+  - inputs:
+    - BMRetriever
+    - RTRetriever
+    name: JoinResults_content
+  - inputs:
+    - BMRetriever_phrase
+    - ESRetriever
+    name: JoinResults_phrase
+  - inputs:
+    - JoinResults_phrase
+    - JoinResults_content
+    name: JoinResults
+

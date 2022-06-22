@@ -1,0 +1,31 @@
+version: "1.5.1rc0"
+
+components: # define all the building-blocks for Pipeline
+  - name: MyESRetriever
+    type: EmbeddingRetriever
+    params:
+      document_store: MyDocumentStore
+      embedding_model: sentence-transformers/paraphrase-MiniLM-L3-v2
+  - name: MyDocumentStore
+    type: ElasticsearchDocumentStore
+    params:
+      similarity: cosine
+      embedding_dim: 384
+      index: bm_documents
+  - name: MyReader # custom-name for the component; helpful for visualization & debugging
+    type: FARMReader # Haystack Class name for the component
+    params:
+      no_ans_boost: -10
+      model_name_or_path: deepset/roberta-base-squad2
+
+pipelines: # multiple Pipelines can be defined using the components from above
+  - name: my_indexer_pipeline
+    nodes:
+      - name: MyDocumentStore
+        inputs: [ Query ]
+  - name: my_query_pipeline
+    nodes:
+      - name: MyESRetriever
+        inputs: [ Query ]
+      - name: MyReader
+        inputs: [ MyESRetriever ]
