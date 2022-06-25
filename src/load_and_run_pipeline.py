@@ -22,8 +22,11 @@ def run_query(query, pipeline):
   print()
 
 def main():
-  validate_yaml(Path("sample.haystack-pipeline.yml"))
-  pipeline = Pipeline.load_from_yaml(Path("sample.haystack-pipeline.yml"), pipeline_name='my_query_pipeline')
+  yaml_file_name = "sample.haystack-pipeline.yml"
+  pipeline_name = "query"
+
+  validate_yaml(Path(yaml_file_name))
+  pipeline = Pipeline.load_from_yaml(Path(yaml_file_name), pipeline_name=pipeline_name)
 
   query = "Convertible Notes and SAFE Terms and Definitions"
   run_query(query, pipeline)
