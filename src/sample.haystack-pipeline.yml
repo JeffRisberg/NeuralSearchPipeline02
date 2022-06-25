@@ -23,3 +23,5 @@ pipelines:
     nodes:
       - name: MyESRetriever
         inputs: [ Query ]
+      - name: MyReader
+        inputs: [ MyESRetriever ]
