@@ -5,7 +5,7 @@ components:
     type: ElasticsearchDocumentStore
     params:
       embedding_dim: 384
-      index: bm_documents
+      index: aisera_ds_carta
       port: 9200
       similarity: cosine
   - name: MyReader
@@ -19,9 +19,8 @@ components:
       document_store: MyDocumentStore
 
 pipelines:
-  - name: my_query_pipeline
+  - name: query
     nodes:
       - name: MyESRetriever
         inputs: [ Query ]
-      - name: MyReader
-        inputs: [ MyESRetriever ]
+
